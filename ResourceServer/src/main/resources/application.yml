@@ -1,0 +1,25 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/,http://localhost:8762/eureka/,http://localhost:8763/eureka/
+# instance:
+#   hostname: clientName
+# eureka-server: 8761-8763
+# resource-server: 8764-8765
+# project-server: 8766-8767
+# junction-server: 8768-8769
+server:
+  port: 8764
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/eureka?serverTimezone=UTC
+    username: root
+    password: QXh15823107893
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  application:
+    name: resource-server
