@@ -24,6 +24,12 @@ public class ResourceController {
 //    @Autowired
 //    private DiscoveryClient discoveryClient;
 
+    @GetMapping("/msg")
+    public String msg() {
+        return restTemplate.getForObject("http://PROJECT-SERVER/msg", String.class);
+
+    }
+
     @GetMapping("")
     public ResponseEntity<?> getAllResources() {
         Optional<List<ResourceEntity>> result = resourceService.getAllResources();
@@ -34,9 +40,12 @@ public class ResourceController {
     }
 
     @GetMapping("/server/{id}")
-    public boolean getResourceExistById(@PathVariable int id) {
+    public String getResourceExistById(@PathVariable int id) {
         Optional<ResourceEntity> result = resourceService.getResourceById(id);
-        return result.isPresent();
+        if(result.isPresent()) {
+            return "1";
+        }
+        return "0";
     }
 
     @GetMapping("/{id}")
