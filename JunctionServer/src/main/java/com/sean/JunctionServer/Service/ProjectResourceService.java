@@ -22,9 +22,9 @@ public class ProjectResourceService {
 //    }
 
     public Optional<ProjectResourceEntity> addProject(ProjectResourceEntity projectResource) {
-        boolean projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + Integer.toString(projectResource.getProjectId()), Boolean.class);
-        boolean resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + Integer.toString(projectResource.getResourceId()), Boolean.class);
-        if(projectExist && resourceExist) {
+        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + projectResource.getProjectId(), String.class);
+        String resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + projectResource.getResourceId(), String.class);
+        if(projectExist.equals("1") && resourceExist.equals("1")) {
             ProjectResourceEntity createdProject =projectResourceDao.save(projectResource);
             return Optional.of(createdProject);
         }

@@ -20,10 +20,14 @@ public class ProjectResourceController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @GetMapping("/msg")
+    public String message() {
+        return "hiiiii";
+    }
+
     @GetMapping("")
-    public boolean get() {
-        boolean response = restTemplate.getForObject("http://project-server/server/1", Boolean.class);
-        return response;
+    public String get() {
+        return restTemplate.getForObject("http://PROJECT-SERVER/server/1", String.class);
     }
 
     @PostMapping("")

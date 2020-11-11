@@ -25,6 +25,11 @@ public class ProjectController {
 //    @Autowired
 //    private DiscoveryClient discoveryClient;
 
+    @GetMapping("/msg")
+    public String message() {
+        return "hiiiii";
+    }
+
     @GetMapping("")
     public ResponseEntity<?> getAllProjects() {
         Optional<List<ProjectEntity>> result = projectService.getAllProjects();
@@ -35,9 +40,12 @@ public class ProjectController {
     }
 
     @GetMapping("/server/{id}")
-    public boolean getProjectExistById(@PathVariable int id) {
+    public String getProjectExistById(@PathVariable int id) {
         Optional<ProjectEntity> result = projectService.getProjectById(id);
-        return result.isPresent();
+        if(result.isPresent()) {
+            return "1";
+        }
+        return "0";
     }
 
     @GetMapping("/{id}")
