@@ -57,6 +57,18 @@ public class ProjectController {
         return new ResponseEntity<>("Project Not Found!", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/resource/{id}")
+    public ResponseEntity<?> getResourcesByProjectId(@PathVariable int id) {
+        Optional<List<Integer>> result = projectService.getResourcesByProjectId(id);
+        if(result == null) {
+            return new ResponseEntity<>("No Resource for Project!", HttpStatus.NOT_FOUND);
+        }
+        if (!result.isPresent()) {
+            return new ResponseEntity<>("No Project!", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @PostMapping("")
     public ResponseEntity<?> createProject(@RequestBody ProjectEntity project) {
         Optional<ProjectEntity> result = projectService.addProject(project);
@@ -76,10 +88,13 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProject(@PathVariable int id) {
+    public ResponseEntity<?> deleteByProjectId(@PathVariable int id) {
         Optional<ProjectEntity> result = projectService.deleteProjectById(id);
+        if(result == null) {
+            return new ResponseEntity<>("Fail to Delete Project Relationship!", HttpStatus.OK);
+        }
         if(result.isPresent()) {
-            return new ResponseEntity<>("Deleted Project!", HttpStatus.OK);
+            return new ResponseEntity<>(result.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>("Project Not Found!", HttpStatus.NOT_FOUND);
     }

@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,19 +20,58 @@ public class ProjectResourceService {
     @Autowired
     private ProjectResourceDao projectResourceDao;
 
-//    public Optional<ProjectEntity> getProjectById(int id) {
-//        return projectDao.findById(id);
-//    }
+    public Optional<List<Integer>> getResourcesByProjectId(int id) {
+        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + id, String.class);
+        if(projectExist.equals("1")) {
+            List<ProjectResourceEntity> entityList = projectResourceDao.findAllByProjectId(id);
+            List<Integer> res = new ArrayList<>();
+            for(ProjectResourceEntity item : entityList) {
+                res.add(item.getResourceId());
+            }
+            return Optional.of(res);
+        }
+        return Optional.empty();
+    }
 
     public Optional<ProjectResourceEntity> addProject(ProjectResourceEntity projectResource) {
         String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + projectResource.getProjectId(), String.class);
         String resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + projectResource.getResourceId(), String.class);
         if(projectExist.equals("1") && resourceExist.equals("1")) {
+            Optional<ProjectResourceEntity> existProject =projectResourceDao.findByProjectIdAndResourceId(projectResource.getProjectId(), projectResource.getResourceId());
+            if(existProject.isPresent()) {
+                return null;
+            }
             ProjectResourceEntity createdProject =projectResourceDao.save(projectResource);
             return Optional.of(createdProject);
         }
         return Optional.empty();
 
+    }
+
+    @Transactional
+    public Optional<List<ProjectResourceEntity>> deleteByProjectId(int id) {
+        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + id, String.class);
+        if(!projectExist.equals("1")) {
+            return null;
+        }
+        List<ProjectResourceEntity> result = projectResourceDao.deleteAllByProjectId(id);
+        if(result.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(result);
+    }
+
+    @Transactional
+    public Optional<List<ProjectResourceEntity>> deleteByResourceId(int id) {
+        String resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + id, String.class);
+        if(!resourceExist.equals("1")) {
+            return null;
+        }
+        List<ProjectResourceEntity> result = projectResourceDao.deleteAllByResourceId(id);
+        if(result.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(result);
     }
 
 //    public Optional<ProjectEntity> updateProject(ProjectEntity project, Integer id) {
@@ -43,13 +85,6 @@ public class ProjectResourceService {
 //        return Optional.empty();
 //    }
 //
-//    public Optional<ProjectEntity> deleteProjectById(int id) {
-//        Optional<ProjectEntity> project = projectDao.findById(id);
-//        if(project.isPresent()) {
-//            projectDao.deleteById(id);
-//            return Optional.of(project.get());
-//        }
-//        return Optional.empty();
-//    }
+//
 
 }

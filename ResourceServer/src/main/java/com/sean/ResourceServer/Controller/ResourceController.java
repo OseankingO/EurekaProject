@@ -78,6 +78,9 @@ public class ResourceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteResource(@PathVariable int id) {
         Optional<ResourceEntity> result = resourceService.deleteResourceById(id);
+        if(result == null) {
+            return new ResponseEntity<>("Fail to Delete Project Relationship!", HttpStatus.OK);
+        }
         if(result.isPresent()) {
             return new ResponseEntity<>("Deleted Resource!", HttpStatus.OK);
         }
