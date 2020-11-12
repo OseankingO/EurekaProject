@@ -19,14 +19,6 @@ public class ProjectResourceController {
     @Autowired
     private ProjectResourceService projectResourceService;
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @GetMapping("/msg")
-    public String message() {
-        return "hiiiii";
-    }
-
     @GetMapping("/project/{id}")
     public Integer[] get(@PathVariable int id) {
         Optional<List<Integer>> result = projectResourceService.getResourcesByProjectId(id);

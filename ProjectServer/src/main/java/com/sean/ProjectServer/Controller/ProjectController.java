@@ -1,6 +1,7 @@
 package com.sean.ProjectServer.Controller;
 
 import com.sean.ProjectServer.Entity.ProjectEntity;
+import com.sean.ProjectServer.FeignClient.ResourceClient;
 import com.sean.ProjectServer.Service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -17,18 +18,18 @@ import java.util.Optional;
 public class ProjectController {
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
     private ProjectService projectService;
+
+//    @Autowired
+//    private ResourceClient resourceClient;
 
 //    @Autowired
 //    private DiscoveryClient discoveryClient;
 
-    @GetMapping("/msg")
-    public String message() {
-        return "hiiiii";
-    }
+//    @GetMapping("/msg")
+//    public String message() {
+//        return resourceClient.getPosts();
+//    }
 
     @GetMapping("")
     public ResponseEntity<?> getAllProjects() {

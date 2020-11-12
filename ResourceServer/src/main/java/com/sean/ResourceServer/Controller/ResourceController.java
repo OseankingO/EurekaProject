@@ -16,19 +16,10 @@ import java.util.Optional;
 public class ResourceController {
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
     private ResourceService resourceService;
 
 //    @Autowired
 //    private DiscoveryClient discoveryClient;
-
-    @GetMapping("/msg")
-    public String msg() {
-        return restTemplate.getForObject("http://PROJECT-SERVER/msg", String.class);
-
-    }
 
     @GetMapping("")
     public ResponseEntity<?> getAllResources() {

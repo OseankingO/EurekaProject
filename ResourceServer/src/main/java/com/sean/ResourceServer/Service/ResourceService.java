@@ -2,6 +2,7 @@ package com.sean.ResourceServer.Service;
 
 import com.sean.ResourceServer.DAO.ResourceDao;
 import com.sean.ResourceServer.Entity.ResourceEntity;
+import com.sean.ResourceServer.FeignClient.JunctionClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,9 @@ public class ResourceService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private JunctionClient junctionClient;
 
     public Optional<List<ResourceEntity>> getAllResources() {
         List<ResourceEntity> projects = resourceDao.findAll();
@@ -52,7 +56,7 @@ public class ResourceService {
         Optional<ResourceEntity> project = resourceDao.findById(id);
         if(project.isPresent()) {
             try {
-                restTemplate.delete("http://JUNCTION-SERVER/resource/" + id);
+                junctionClient.deleteResourceById(id);
                 resourceDao.deleteById(id);
                 return Optional.of(project.get());
             } catch (Error e) {
