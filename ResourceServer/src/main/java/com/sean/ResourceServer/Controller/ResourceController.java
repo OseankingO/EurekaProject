@@ -1,5 +1,6 @@
 package com.sean.ResourceServer.Controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.sean.ResourceServer.Entity.ResourceEntity;
 import com.sean.ResourceServer.Service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +17,10 @@ import java.util.Optional;
 public class ResourceController {
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
     private ResourceService resourceService;
 
 //    @Autowired
 //    private DiscoveryClient discoveryClient;
-
-    @GetMapping("/msg")
-    public String msg() {
-        return restTemplate.getForObject("http://PROJECT-SERVER/msg", String.class);
-
-    }
 
     @GetMapping("")
     public ResponseEntity<?> getAllResources() {
@@ -76,6 +68,7 @@ public class ResourceController {
     }
 
     @DeleteMapping("/{id}")
+    @HystrixCommand(fallbackMethod = "deleteFallResource")
     public ResponseEntity<?> deleteResource(@PathVariable int id) {
         Optional<ResourceEntity> result = resourceService.deleteResourceById(id);
         if(result == null) {
@@ -85,6 +78,10 @@ public class ResourceController {
             return new ResponseEntity<>("Deleted Resource!", HttpStatus.OK);
         }
         return new ResponseEntity<>("Resource Not Found!", HttpStatus.NOT_FOUND);
+    }
+
+    public ResponseEntity<?> deleteFallResource(@PathVariable int id) {
+        return new ResponseEntity<>("Can't Delete Project Right Now!", HttpStatus.NOT_FOUND);
     }
 }
 

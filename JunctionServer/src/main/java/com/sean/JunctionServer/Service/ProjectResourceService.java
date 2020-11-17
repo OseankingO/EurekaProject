@@ -2,6 +2,8 @@ package com.sean.JunctionServer.Service;
 
 import com.sean.JunctionServer.DAO.ProjectResourceDao;
 import com.sean.JunctionServer.Entity.ProjectResourceEntity;
+import com.sean.JunctionServer.FeignClient.ProjectClient;
+import com.sean.JunctionServer.FeignClient.ResourceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,8 +22,14 @@ public class ProjectResourceService {
     @Autowired
     private ProjectResourceDao projectResourceDao;
 
+    @Autowired
+    private ResourceClient resourceClient;
+
+    @Autowired
+    private ProjectClient projectClient;
+
     public Optional<List<Integer>> getResourcesByProjectId(int id) {
-        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + id, String.class);
+        String projectExist = projectClient.isProjectExistById(id);
         if(projectExist.equals("1")) {
             List<ProjectResourceEntity> entityList = projectResourceDao.findAllByProjectId(id);
             List<Integer> res = new ArrayList<>();
@@ -34,8 +42,8 @@ public class ProjectResourceService {
     }
 
     public Optional<ProjectResourceEntity> addProject(ProjectResourceEntity projectResource) {
-        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + projectResource.getProjectId(), String.class);
-        String resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + projectResource.getResourceId(), String.class);
+        String projectExist = projectClient.isProjectExistById(projectResource.getProjectId());
+        String resourceExist = resourceClient.isResourceExistById(projectResource.getResourceId());
         if(projectExist.equals("1") && resourceExist.equals("1")) {
             Optional<ProjectResourceEntity> existProject =projectResourceDao.findByProjectIdAndResourceId(projectResource.getProjectId(), projectResource.getResourceId());
             if(existProject.isPresent()) {
@@ -50,7 +58,7 @@ public class ProjectResourceService {
 
     @Transactional
     public Optional<List<ProjectResourceEntity>> deleteByProjectId(int id) {
-        String projectExist = restTemplate.getForObject("http://PROJECT-SERVER/server/" + id, String.class);
+        String projectExist = projectClient.isProjectExistById(id);
         if(!projectExist.equals("1")) {
             return null;
         }
@@ -63,7 +71,7 @@ public class ProjectResourceService {
 
     @Transactional
     public Optional<List<ProjectResourceEntity>> deleteByResourceId(int id) {
-        String resourceExist = restTemplate.getForObject("http://RESOURCE-SERVER/server/" + id, String.class);
+        String resourceExist = resourceClient.isResourceExistById(id);
         if(!resourceExist.equals("1")) {
             return null;
         }
@@ -73,18 +81,4 @@ public class ProjectResourceService {
         }
         return Optional.of(result);
     }
-
-//    public Optional<ProjectEntity> updateProject(ProjectEntity project, Integer id) {
-//        Optional<ProjectEntity> existProject = projectDao.findById(id);
-//        if (existProject.isPresent()) {
-//            project.setId(id);
-//            ProjectEntity createdProject = projectDao.save(project);
-//            Optional<ProjectEntity> result = Optional.of(createdProject);
-//            return result;
-//        }
-//        return Optional.empty();
-//    }
-//
-//
-
 }

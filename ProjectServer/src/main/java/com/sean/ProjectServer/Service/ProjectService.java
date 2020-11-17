@@ -2,6 +2,8 @@ package com.sean.ProjectServer.Service;
 
 import com.sean.ProjectServer.DAO.ProjectDao;
 import com.sean.ProjectServer.Entity.ProjectEntity;
+import com.sean.ProjectServer.FeignClient.JunctionClient;
+import com.sean.ProjectServer.FeignClient.ResourceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,14 @@ public class ProjectService {
     @Autowired
     private ProjectDao projectDao;
 
+//    @Autowired
+//    private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private ResourceClient resourceClient;
+
+    @Autowired
+    private JunctionClient junctionClient;
 
     public Optional<List<ProjectEntity>> getAllProjects() {
         List<ProjectEntity> projects = projectDao.findAll();
@@ -36,7 +44,7 @@ public class ProjectService {
     public Optional<List<Integer>> getResourcesByProjectId(int id) {
         Optional<ProjectEntity> existProject = projectDao.findById(id);
         if (existProject.isPresent()) {
-            Integer[] result = restTemplate.getForObject("http://JUNCTION-SERVER/project/" + id, Integer[].class);
+            Integer[] result = junctionClient.getResourcesByProjectId(id);
             if(result.length != 0) {
                 return Optional.of(Arrays.asList(result));
             }
@@ -66,7 +74,7 @@ public class ProjectService {
         Optional<ProjectEntity> project = projectDao.findById(id);
         if(project.isPresent()) {
             try {
-                restTemplate.delete("http://JUNCTION-SERVER/project/" + id);
+                junctionClient.deleteProjectById(id);
                 projectDao.deleteById(id);
                 return project;
             } catch (Error e) {
