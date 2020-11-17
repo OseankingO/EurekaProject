@@ -1,5 +1,6 @@
 package com.sean.ProjectServer.Controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.sean.ProjectServer.Entity.ProjectEntity;
 import com.sean.ProjectServer.FeignClient.ResourceClient;
 import com.sean.ProjectServer.Service.ProjectService;
@@ -59,6 +60,7 @@ public class ProjectController {
     }
 
     @GetMapping("/resource/{id}")
+    @HystrixCommand(fallbackMethod = "getFallResourcesByProjectId")
     public ResponseEntity<?> getResourcesByProjectId(@PathVariable int id) {
         Optional<List<Integer>> result = projectService.getResourcesByProjectId(id);
         if(result == null) {
@@ -68,6 +70,10 @@ public class ProjectController {
             return new ResponseEntity<>("No Project!", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getFallResourcesByProjectId(@PathVariable int id) {
+        return new ResponseEntity<>("Can't Get The Resources Right Now", HttpStatus.OK);
     }
 
     @PostMapping("")
@@ -89,6 +95,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @HystrixCommand(fallbackMethod = "deleteFallByProjectId")
     public ResponseEntity<?> deleteByProjectId(@PathVariable int id) {
         Optional<ProjectEntity> result = projectService.deleteProjectById(id);
         if(result == null) {
@@ -98,5 +105,9 @@ public class ProjectController {
             return new ResponseEntity<>(result.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>("Project Not Found!", HttpStatus.NOT_FOUND);
+    }
+
+    public ResponseEntity<?> deleteFallByProjectId(@PathVariable int id) {
+        return new ResponseEntity<>("Can't Delete Project Right Now!", HttpStatus.OK);
     }
 }
